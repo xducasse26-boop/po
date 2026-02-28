@@ -8,6 +8,8 @@ const islandMinAreaInput = document.getElementById("islandMinArea");
 const paperFormatInput = document.getElementById("paperFormat");
 const orientationInput = document.getElementById("orientation");
 const dpiInput = document.getElementById("dpi");
+const textPromptInput = document.getElementById("textPrompt");
+const generateTextImageBtn = document.getElementById("generateTextImageBtn");
 
 const thresholdValue = document.getElementById("thresholdValue");
 const blurValue = document.getElementById("blurValue");
@@ -15,6 +17,7 @@ const bridgeWidthValue = document.getElementById("bridgeWidthValue");
 const hint = document.getElementById("hint");
 const downloadBtn = document.getElementById("downloadBtn");
 const printBtn = document.getElementById("printBtn");
+const resetBtn = document.getElementById("resetBtn");
 
 const previewCanvas = document.getElementById("previewCanvas");
 const previewCtx = previewCanvas.getContext("2d", { willReadFrequently: true });
@@ -24,6 +27,20 @@ const workingCtx = workingCanvas.getContext("2d", { willReadFrequently: true });
 
 let sourceImage = null;
 let renderData = null;
+
+
+const DEFAULTS = {
+  threshold: 128,
+  blur: 1.2,
+  invert: false,
+  autoBridges: true,
+  bridgeWidth: 14,
+  islandMinArea: 250,
+  paperFormat: "a4",
+  orientation: "portrait",
+  dpi: 300,
+  textPrompt: "Stencil Creator",
+};
 
 const PAPER_MM = {
   a4: [210, 297],
@@ -56,6 +73,79 @@ function fitContain(srcW, srcH, dstW, dstH) {
   const x = Math.round((dstW - w) / 2);
   const y = Math.round((dstH - h) / 2);
   return { x, y, w, h };
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (!words.length) return ["STENCIL"];
+
+  const lines = [];
+  let current = words[0];
+
+  for (let i = 1; i < words.length; i += 1) {
+    const candidate = `${current} ${words[i]}`;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      current = candidate;
+    } else {
+      lines.push(current);
+      current = words[i];
+    }
+  }
+
+  lines.push(current);
+  return lines;
+}
+
+function createImageFromText(rawText) {
+  const text = rawText.trim();
+  if (!text) {
+    hint.textContent = "Saisis un texte avant de créer une image.";
+    return;
+  }
+
+  const textCanvas = document.createElement("canvas");
+  textCanvas.width = 1800;
+  textCanvas.height = 1200;
+  const textCtx = textCanvas.getContext("2d");
+
+  textCtx.fillStyle = "white";
+  textCtx.fillRect(0, 0, textCanvas.width, textCanvas.height);
+
+  const horizontalPadding = Math.round(textCanvas.width * 0.1);
+  const maxWidth = textCanvas.width - horizontalPadding * 2;
+  const maxLines = 6;
+
+  let fontSize = 230;
+  let lines = [];
+
+  while (fontSize >= 74) {
+    textCtx.font = `900 ${fontSize}px Avenir Next, Segoe UI, sans-serif`;
+    lines = wrapText(textCtx, text.toUpperCase(), maxWidth);
+    if (lines.length <= maxLines) break;
+    fontSize -= 14;
+  }
+
+  textCtx.font = `900 ${fontSize}px Avenir Next, Segoe UI, sans-serif`;
+  textCtx.textAlign = "center";
+  textCtx.textBaseline = "middle";
+  textCtx.fillStyle = "black";
+
+  const lineHeight = Math.round(fontSize * 1.2);
+  const blockHeight = lineHeight * lines.length;
+  const startY = Math.round((textCanvas.height - blockHeight) / 2 + lineHeight / 2);
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const y = startY + i * lineHeight;
+    textCtx.fillText(lines[i], Math.round(textCanvas.width / 2), y, maxWidth);
+  }
+
+  const img = new Image();
+  img.onload = () => {
+    sourceImage = img;
+    buildStencil();
+    hint.textContent = `Image créée depuis le texte: "${text}"`;
+  };
+  img.src = textCanvas.toDataURL("image/png");
 }
 
 function paintDisk(mask, width, height, cx, cy, radius) {
@@ -478,6 +568,29 @@ function handleImageUpload(file) {
   reader.readAsDataURL(file);
 }
 
+function resetControls() {
+  thresholdInput.value = String(DEFAULTS.threshold);
+  thresholdValue.textContent = String(DEFAULTS.threshold);
+  blurInput.value = String(DEFAULTS.blur);
+  blurValue.textContent = String(DEFAULTS.blur);
+  invertInput.checked = DEFAULTS.invert;
+  autoBridgesInput.checked = DEFAULTS.autoBridges;
+  bridgeWidthInput.value = String(DEFAULTS.bridgeWidth);
+  bridgeWidthValue.textContent = String(DEFAULTS.bridgeWidth);
+  islandMinAreaInput.value = String(DEFAULTS.islandMinArea);
+  paperFormatInput.value = DEFAULTS.paperFormat;
+  orientationInput.value = DEFAULTS.orientation;
+  dpiInput.value = String(DEFAULTS.dpi);
+  textPromptInput.value = DEFAULTS.textPrompt;
+
+  if (sourceImage) {
+    buildStencil();
+  } else {
+    hint.textContent = "Réglages réinitialisés. Charge une image pour générer ton pochoir.";
+  }
+}
+
+
 thresholdInput.addEventListener("input", () => {
   thresholdValue.textContent = thresholdInput.value;
   buildStencil();
@@ -503,5 +616,12 @@ imageInput.addEventListener("change", (event) => {
   handleImageUpload(event.target.files?.[0]);
 });
 
+generateTextImageBtn.addEventListener("click", () => {
+  createImageFromText(textPromptInput.value || "");
+});
+
 downloadBtn.addEventListener("click", downloadPng);
 printBtn.addEventListener("click", printStencil);
+resetBtn.addEventListener("click", resetControls);
+
+textPromptInput.value = DEFAULTS.textPrompt;

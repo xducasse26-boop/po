@@ -72,6 +72,41 @@ h2 {
   margin-bottom: 0.9rem;
 }
 
+
+.text-creator {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.text-creator label {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+.text-creator textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 74px;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem;
+  margin-bottom: 0.6rem;
+}
+
+#generateTextImageBtn {
+  width: 100%;
+  background: #2f3f6b;
+}
+
+#generateTextImageBtn:hover {
+  background: #45588c;
+}
+
 .control-group label {
   display: block;
   font-size: 0.95rem;
@@ -100,7 +135,7 @@ h2 {
 
 .button-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.7rem;
   margin-top: 1rem;
 }
@@ -122,6 +157,14 @@ button:disabled {
 
 button:not(:disabled):hover {
   background: var(--accent);
+}
+
+#resetBtn {
+  background: #6b6458;
+}
+
+#resetBtn:not(:disabled):hover {
+  background: #847b6c;
 }
 
 .preview {
