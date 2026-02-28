@@ -19,6 +19,16 @@
           <input id="imageInput" type="file" accept="image/*" />
         </label>
 
+        <div class="text-creator">
+          <label for="textPrompt">Ou créer une image depuis un texte</label>
+          <textarea
+            id="textPrompt"
+            rows="3"
+            placeholder="Ex: TIGRE URBAIN"
+          >Stencil Creator</textarea>
+          <button id="generateTextImageBtn" type="button">Créer une image texte</button>
+        </div>
+
         <div class="control-group">
           <label for="threshold">Seuil (noir/blanc)</label>
           <input id="threshold" type="range" min="0" max="255" value="128" />
@@ -80,6 +90,7 @@
         <div class="button-row">
           <button id="downloadBtn" disabled>Télécharger PNG</button>
           <button id="printBtn" disabled>Imprimer</button>
+          <button id="resetBtn" type="button">Réinitialiser</button>
         </div>
       </section>
 
