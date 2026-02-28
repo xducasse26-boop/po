@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stencil Maker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel controls">
+        <h1>Stencil Maker</h1>
+        <p class="subtitle">
+          Transforme une image en pochoir imprimable noir et blanc avec ponts intelligents.
+        </p>
+
+        <label class="file-input">
+          <span>Charger une image</span>
+          <input id="imageInput" type="file" accept="image/*" />
+        </label>
+
+        <div class="control-group">
+          <label for="threshold">Seuil (noir/blanc)</label>
+          <input id="threshold" type="range" min="0" max="255" value="128" />
+          <output id="thresholdValue">128</output>
+        </div>
+
+        <div class="control-group">
+          <label for="blur">Lissage</label>
+          <input id="blur" type="range" min="0" max="8" step="0.1" value="1.2" />
+          <output id="blurValue">1.2</output>
+        </div>
+
+        <div class="control-group checkbox">
+          <label for="invert">
+            <input id="invert" type="checkbox" />
+            Inverser noir/blanc
+          </label>
+        </div>
+
+        <div class="control-group checkbox">
+          <label for="autoBridges">
+            <input id="autoBridges" type="checkbox" checked />
+            Ponts automatiques (pochoir)
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label for="bridgeWidth">Largeur des ponts (px)</label>
+          <input id="bridgeWidth" type="range" min="2" max="80" step="1" value="14" />
+          <output id="bridgeWidthValue">14</output>
+        </div>
+
+        <div class="control-group">
+          <label for="islandMinArea">Taille min îlot (px²)</label>
+          <input id="islandMinArea" type="number" min="10" step="10" value="250" />
+        </div>
+
+        <div class="control-group">
+          <label for="paperFormat">Format papier</label>
+          <select id="paperFormat">
+            <option value="a4" selected>A4 (210 × 297 mm)</option>
+            <option value="letter">US Letter (8.5 × 11 in)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="orientation">Orientation</label>
+          <select id="orientation">
+            <option value="portrait" selected>Portrait</option>
+            <option value="landscape">Paysage</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="dpi">DPI d'export</label>
+          <input id="dpi" type="number" min="72" max="600" step="1" value="300" />
+        </div>
+
+        <div class="button-row">
+          <button id="downloadBtn" disabled>Télécharger PNG</button>
+          <button id="printBtn" disabled>Imprimer</button>
+        </div>
+      </section>
+
+      <section class="panel preview">
+        <h2>Aperçu</h2>
+        <p id="hint">Charge une image pour générer ton pochoir.</p>
+        <canvas id="previewCanvas" width="900" height="900" aria-label="Aperçu du pochoir"></canvas>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
